@@ -1,15 +1,11 @@
-import numpy as np
-from qiskit import QuantumCircuit, transpile, quantum_info
-from qiskit.providers.aer import AerSimulator
 from enum import Enum, auto, unique
-import copy
+from quantum import Qubits
 
+BOARD_SIZE = 8
 NUM_PIECES = 32
 BITS_PER_DIM = 3
 BITS_PER_PIECE = BITS_PER_DIM * 2
 TOTAL_QUBITS = NUM_PIECES * BITS_PER_PIECE
-
-simulator = AerSimulator(method='matrix_product_state')
 
 # types:
 # rook   = 000_ = 0,
@@ -128,30 +124,21 @@ INITIAL_STATE = 0
 for piece in Piece:
     INITIAL_STATE += STARTING_POS[piece].value << (piece.value * BITS_PER_PIECE)
 
-def compute_initial_data():
-    circ = QuantumCircuit(TOTAL_QUBITS, TOTAL_QUBITS)
-    for i in range(TOTAL_QUBITS):
-        if (INITIAL_STATE & (1 << i)) != 0:
-            circ.x(i)
-    circ.save_matrix_product_state(label='mps')
-
-    result = simulator.run(transpile(circ, simulator)).result()
-    return result.data(0)['mps']
-INITIAL_DATA = compute_initial_data()
-
 class QuantumChess:
     def __init__(self) -> None:
-        self.data = copy.deepcopy(INITIAL_DATA)
-        self.alive = {piece: True for piece in Piece}
-        # since it's difficult to get an iterable over the nonzero entries
-        # of the statevector represented by the mps, we have to keep track
-        # of which ones are possibly nonzero
-        self.possible = [INITIAL_STATE]
+        self.state = Qubits(TOTAL_QUBITS, INITIAL_STATE)
+        self.alive = [True] * NUM_PIECES
         self.move = 0 # white to move
         self.can_castle = [1, 1]
 
-# data = copy.deepcopy(INITIAL_DATA)
-# circ = QuantumCircuit(TOTAL_QUBITS, TOTAL_QUBITS)
-# circ.set_matrix_product_state(data)
+    def flatten(self):
+        board = [[None] * BOARD_SIZE] * BOARD_SIZE
+        for bv in self.state.statedict:
+            for piece in Piece:
+                file, rank = Position((bv >> (piece.value * 6)) &
+                    ((1 << BITS_PER_PIECE) - 1)).pair()
+                assert board[file][rank] is None or \
+                    board[file][rank] == piece
+                board[file][rank] = piece
+        return board
 
-# print('{:012b}'.format(INITIAL_STATE & ((1 << 12) - 1)))
