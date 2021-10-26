@@ -23,6 +23,16 @@ class PieceType(Enum):
     KING = 7
     PAWN = 8
 
+pieceType = {
+    0 : "R",
+    2 : "N",
+    4 : "B",
+    6 : "Q",
+    7 : "K",
+    8 : "P",
+    None : " "
+}
+
 # 5 bits
 # CPTTI
 # color: white = 0, black = 1
@@ -68,7 +78,11 @@ class Piece(Enum):
     BLACK_PAWN_7 = auto()
 
     def is_piece(self):
-        return (self.value & 0b01000) == 1
+        # 80% confident this functions as intended, maybe 60%
+        return not((self.value & 0b01000) == 0b01000) 
+
+    def is_pawn(self):
+        return (self.value & 0b01000)
 
     def get_piece_index(self):
         assert self.is_piece()
@@ -86,7 +100,7 @@ class Piece(Enum):
     def get_type(self):
         if self.is_pawn(): return 0b01000
         upper = self.value & 0b00110
-        if upper == 6: return upper + self.get_piece_index()
+        if upper == 6: return upper + self.get_piece_index()           
         else: return upper
 
 class Position:
@@ -132,7 +146,7 @@ class QuantumChess:
         self.can_castle = [1, 1]
 
     def flatten(self):
-        board = [[None] * BOARD_SIZE] * BOARD_SIZE
+        board = [[None for i in range(BOARD_SIZE)] for j in range(BOARD_SIZE)]
         for bv in self.state.statedict:
             for piece in Piece:
                 file, rank = Position((bv >> (piece.value * 6)) &
@@ -141,4 +155,16 @@ class QuantumChess:
                     board[file][rank] == piece
                 board[file][rank] = piece
         return board
+
+    def printBoard(self):
+        flattenedBoard = self.flatten()
+        for i in range(BOARD_SIZE):
+            for j in range(BOARD_SIZE):
+                piece = (flattenedBoard[j][7-i])
+                if piece != None: print(pieceType.get(piece.get_type()) + " ", end = "")
+                else: print("  ", end = "")
+            print("")
+         
+board = QuantumChess()
+board.printBoard()
 
