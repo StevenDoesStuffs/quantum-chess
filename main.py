@@ -165,6 +165,38 @@ class QuantumChess:
                 else: print("  ", end = "")
             print("")
          
-board = QuantumChess()
-board.printBoard()
+    # Parses user input from <piece_rank> <piece_file> <new_rank> <new_file> to a piece object and board location (piece, rank, file)
+    def startGame(self):
+        board = self.flatten()
+        running = True
+        turn = "black"
+        while(running):
+            if(self.move): 
+                self.move = 0
+                turn = "black"
+            else: 
+                self.move = 1
+                turn = "white"
+            # Lol ^
+            piece = None
+            while(piece == None):
+                self.printBoard()
+                print("It is " + turn + "'s turn")
+                toParse = input("Use <piece_rank> <piece_file> <new_rank> <new_file> to make your move: ")
+                toParse = toParse.split(" ")
+                if(len(toParse) != 4 ):
+                    print("Invalid input!")
+                    continue
+                piece = board[int(toParse[0])][int(toParse[1])]
 
+                new_rank = toParse[2]
+                new_file = toParse[3]
+
+                if piece == None:
+                    print("Invalid piece!")
+                    continue
+
+                # At this point we have a piece object (piece) that needs to be moved to a new location (new_rank, new_file)
+
+board = QuantumChess()
+board.startGame()
