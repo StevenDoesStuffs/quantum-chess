@@ -164,6 +164,16 @@ class QuantumChess:
                 board[file][rank] = piece
         return board
 
+
+
+    def legal_move(old_pos_x, old_pos_y, new_pos_x, new_pos_y, isAttacking, piece):
+        diff_x = new_pos_x - old_pos_x
+        diff_y = new_pos_y - old_pos_y
+        # For horizontal movement
+        if diff_x == diff_y
+
+        return False
+
     def printBoard(self):
         flattenedBoard = self.flatten()
         print("    1   2   3   4   5   6   7   8")
@@ -187,9 +197,10 @@ class QuantumChess:
                 print("  \u251C\u2500\u2500\u2500", end="")
                 for i in range(7): print("\u253C\u2500\u2500\u2500", end="")
                 print("\u2524")
+        
          
     # Parses user input from <piece_rank> <piece_file> <new_rank> <new_file> to a piece object and board location (piece, rank, file)
-    def startGame(self):
+    def start_game(self):
         board = self.flatten()
         running = True
         turn = "black"
@@ -203,6 +214,7 @@ class QuantumChess:
             # Lol ^
             piece = None
             while(piece == None):
+                # board = self.flatten()
                 self.printBoard()
                 print("It is " + turn + "'s turn")
                 toParse = input("Use <piece_rank> <piece_file> <new_rank> <new_file> to make your move: ")
@@ -222,4 +234,4 @@ class QuantumChess:
                 # At this point we have a piece object (piece) that needs to be moved to a new location (new_rank, new_file)
 
 board = QuantumChess()
-board.startGame()
+board.start_game()
