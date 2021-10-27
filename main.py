@@ -85,12 +85,12 @@ class Piece(Enum):
     BLACK_PAWN_6 = auto()
     BLACK_PAWN_7 = auto()
 
+    def is_pawn(self):
+        return bool(self.value & 0b01000)
+
     def is_piece(self):
         # 80% confident this functions as intended, maybe 60%
-        return not((self.value & 0b01000) == 0b01000) 
-
-    def is_pawn(self):
-        return (self.value & 0b01000)
+        return not self.is_pawn()
 
     def get_piece_index(self):
         assert self.is_piece()
@@ -108,7 +108,7 @@ class Piece(Enum):
     def get_type(self):
         if self.is_pawn(): return 0b01000
         upper = self.value & 0b00110
-        if upper == 6: return upper + self.get_piece_index()           
+        if upper == 6: return upper + self.get_piece_index()
         else: return upper
 
 class Position:
@@ -146,6 +146,18 @@ INITIAL_STATE = 0
 for piece in Piece:
     INITIAL_STATE += STARTING_POS[piece].value << (piece.value * BITS_PER_PIECE)
 
+def put_board(board, bv):
+    for piece in Piece:
+        file, rank = Position((bv >> (piece.value * 6)) &
+            ((1 << BITS_PER_PIECE) - 1)).pair()
+        assert board[file][rank] is None or \
+            board[file][rank] == piece
+        board[file][rank] = piece
+    return board
+
+def create_board():
+    return [[None for _i in range(BOARD_SIZE)] for _j in range(BOARD_SIZE)]
+
 class QuantumChess:
     def __init__(self) -> None:
         self.state = Qubits(TOTAL_QUBITS, INITIAL_STATE)
@@ -154,14 +166,9 @@ class QuantumChess:
         self.can_castle = [1, 1]
 
     def flatten(self):
-        board = [[None for i in range(BOARD_SIZE)] for j in range(BOARD_SIZE)]
+        board = create_board()
         for bv in self.state.statedict:
-            for piece in Piece:
-                file, rank = Position((bv >> (piece.value * 6)) &
-                    ((1 << BITS_PER_PIECE) - 1)).pair()
-                assert board[file][rank] is None or \
-                    board[file][rank] == piece
-                board[file][rank] = piece
+            put_board(board, bv)
         return board
 
 
@@ -176,6 +183,13 @@ class QuantumChess:
 
     def printBoard(self):
         flattenedBoard = self.flatten()
+    def get_board(self, index):
+        board = create_board()
+        bv = sorted(self.state.comp)[index] # very slow but who cares
+        put_board(board, bv)
+        return board;
+
+    def print_board(self, board):
         print("    1   2   3   4   5   6   7   8")
         print("  \u250C\u2500\u2500\u2500", end="")
         for i in range(7): print("\u252C\u2500\u2500\u2500", end="")
@@ -183,7 +197,7 @@ class QuantumChess:
         for i in range(BOARD_SIZE):
             print(i + 1, "\u2502", end="")
             for j in range(BOARD_SIZE):
-                piece = (flattenedBoard[j][7-i])
+                piece = (board[j][7-i])
                 if piece != None:
                     piece_code = piece.get_type() + (piece.get_color() << 4)
                     print(" " + pieceType.get(piece_code) + " \u2502", end = "")
@@ -205,10 +219,10 @@ class QuantumChess:
         running = True
         turn = "black"
         while(running):
-            if(self.move): 
+            if(self.move):
                 self.move = 0
                 turn = "black"
-            else: 
+            else:
                 self.move = 1
                 turn = "white"
             # Lol ^
