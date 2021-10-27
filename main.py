@@ -24,12 +24,20 @@ class PieceType(Enum):
     PAWN = 8
 
 pieceType = {
-    0 : "R",
-    2 : "N",
-    4 : "B",
-    6 : "Q",
-    7 : "K",
-    8 : "P",
+    0 : "\u2656", ## White Rook
+    2 : "\u2658", ## White Knight
+    4 : "\u2657", ## White Bishop
+    6 : "\u2655", ## White Queen
+    7 : "\u2654", ## White King
+    8 : "\u2659", # White Pawn
+
+    16 : "\u265C", ## Black Rook
+    18 : "\u265E", ## Black Knight
+    20 : "\u265D", ## Black Bishop
+    22 : "\u265B", ## Black Queen
+    23 : "\u265A", ## Black King
+    24 : "\u265F", ## Black Pawn (Note: Looks funky on certain specs)
+
     None : " "
 }
 
@@ -158,12 +166,27 @@ class QuantumChess:
 
     def printBoard(self):
         flattenedBoard = self.flatten()
+        print("    1   2   3   4   5   6   7   8")
+        print("  \u250C\u2500\u2500\u2500", end="")
+        for i in range(7): print("\u252C\u2500\u2500\u2500", end="")
+        print("\u2510")
         for i in range(BOARD_SIZE):
+            print(i + 1, "\u2502", end="")
             for j in range(BOARD_SIZE):
                 piece = (flattenedBoard[j][7-i])
-                if piece != None: print(pieceType.get(piece.get_type()) + " ", end = "")
-                else: print("  ", end = "")
+                if piece != None:
+                    piece_code = piece.get_type() + (piece.get_color() << 4)
+                    print(" " + pieceType.get(piece_code) + " \u2502", end = "")
+                else: print("   \u2502", end = "")
             print("")
+            if(i == 7):
+                print("  \u2514\u2500\u2500\u2500", end="")
+                for i in range(7): print("\u2534\u2500\u2500\u2500", end="")
+                print("\u2518")
+            else:
+                print("  \u251C\u2500\u2500\u2500", end="")
+                for i in range(7): print("\u253C\u2500\u2500\u2500", end="")
+                print("\u2524")
          
     # Parses user input from <piece_rank> <piece_file> <new_rank> <new_file> to a piece object and board location (piece, rank, file)
     def startGame(self):
