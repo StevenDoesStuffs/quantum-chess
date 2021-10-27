@@ -46,6 +46,18 @@ class QuantumChess:
             put_board(board, bv)
         return board
 
+
+
+    def legal_move(old_pos_x, old_pos_y, new_pos_x, new_pos_y, isAttacking, piece):
+        diff_x = new_pos_x - old_pos_x
+        diff_y = new_pos_y - old_pos_y
+        # For horizontal movement
+        if diff_x == diff_y
+
+        return False
+
+    def printBoard(self):
+        flattenedBoard = self.flatten()
     def get_board(self, index):
         board = create_board()
         bv = sorted(self.state.comp)[index] # very slow but who cares
@@ -74,9 +86,8 @@ class QuantumChess:
                 print("  \u251C\u2500\u2500\u2500", end="")
                 for i in range(7): print("\u253C\u2500\u2500\u2500", end="")
                 print("\u2524")
-
-
-
+        
+         
     # Parses user input from <piece_rank> <piece_file> <new_rank> <new_file> to a piece object and board location (piece, rank, file)
     def start_game(self):
         board = self.flatten()
@@ -92,7 +103,8 @@ class QuantumChess:
             # Lol ^
             piece = None
             while(piece == None):
-                self.print_board()
+                # board = self.flatten()
+                self.printBoard()
                 print("It is " + turn + "'s turn")
                 toParse = input("Use <piece_rank> <piece_file> <new_rank> <new_file> to make your move: ")
                 toParse = toParse.split(" ")
