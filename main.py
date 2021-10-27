@@ -164,7 +164,6 @@ class QuantumChess:
                 if piece != None: print(pieceType.get(piece.get_type()) + " ", end = "")
                 else: print("  ", end = "")
             print("")
-         
 board = QuantumChess()
 board.printBoard()
 
