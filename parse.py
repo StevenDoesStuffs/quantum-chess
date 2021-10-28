@@ -68,6 +68,20 @@ def read_cond(input, index):
     index, pos = read_pos(input, index)
     return index, (piece, pos)
 
+def read_complex(input, index):
+    index = read_whitespace(input, index)
+    index = read_str(input, index, '(')
+    tilde = input.find('~', index)
+    if tilde < 0: raise ParseError(index)
+    end = input.find(')', tilde)
+    if end < 0: raise ParseError(tilde)
+
+    mag2 = float(input[index:tilde])
+    angle = float(input[tilde + 1:end])
+
+    return end + 1, sqrt(mag2) * (e ** (1j * pi * angle))
+
+
 
 def read_if(input, index):
     index = read_whitespace(input, index)
@@ -99,19 +113,6 @@ def read_dict(input, index, inner, delim):
 
     return index, dict(result)
 
-def read_complex(input, index):
-    index = read_whitespace(input, index)
-    index = read_str(input, index, '(')
-    tilde = input.find('~', index)
-    if tilde < 0: raise ParseError(index)
-    end = input.find(')', tilde)
-    if end < 0: raise ParseError(tilde)
-
-    mag2 = float(input[index:tilde])
-    angle = float(input[tilde + 1:end])
-
-    return end + 1, sqrt(mag2) * (e ** (1j * pi * angle))
-
 def read_col_elem(input, index):
     index = read_whitespace(input, index)
     index, pos = read_pos(input, index)
@@ -124,8 +125,6 @@ def read_col(input, index):
     index = read_str(input, index, ':')
     index, result = read_dict(input, index, read_col_elem, '+')
     return index, (pos, result)
-
-
 
 def read_map(input, index):
     index = read_whitespace(input, index)
@@ -142,7 +141,6 @@ def read_move(input, index):
 
 def read_turn(input, index, color):
     index = read_whitespace(input, index)
-    input = input.lower()
 
     index, piece = read_piece(input, index, color)
     index = read_str(input, index, ':')
@@ -150,4 +148,5 @@ def read_turn(input, index, color):
     return index, piece, move
 
 def parse(input, color):
+    input = input.lower()
     return read_turn(input, 0, color)[1:]
