@@ -22,18 +22,6 @@ INITIAL_STATE = 0
 for piece in Piece:
     INITIAL_STATE += STARTING_POS[piece].value << (piece.value * BITS_PER_PIECE)
 
-def put_board(board, bv):
-    for piece in Piece:
-        file, rank = Position((bv >> (piece.value * 6)) &
-            ((1 << BITS_PER_PIECE) - 1)).pair()
-        assert board[file][rank] is None or \
-            board[file][rank] == piece
-        board[file][rank] = piece
-    return board
-
-def create_board():
-    return [[None for _i in range(BOARD_SIZE)] for _j in range(BOARD_SIZE)]
-
 def check_row_col(diff_x, diff_y):
     if (diff_x != 0 and diff_y == 0) or (diff_x == 0 and diff_y != 0):
         return True
@@ -109,35 +97,15 @@ class QuantumChess:
         elif pt == 8 and check_pawn(): return True
         else: return False
 
+    def quantum_move(self, turn):
+
+        return
+
     def get_board(self, index):
         board = create_board()
         bv = sorted(self.state.statedict)[index] # very slow but who cares
         put_board(board, bv)
         return board
-
-    def print_board(self, board):
-        print("    1   2   3   4   5   6   7   8")
-        print("  \u250C\u2500\u2500\u2500", end="")
-        for i in range(7): print("\u252C\u2500\u2500\u2500", end="")
-        print("\u2510")
-        for i in range(BOARD_SIZE):
-            print(i + 1, "\u2502", end="")
-            for j in range(BOARD_SIZE):
-                piece = (board[j][7-i])
-                if piece != None:
-                    piece_code = piece.get_type() + (piece.get_color() << 4)
-                    print(" " + pieceType.get(piece_code) + " \u2502", end = "")
-                else: print("   \u2502", end = "")
-            print("")
-            if(i == 7):
-                print("  \u2514\u2500\u2500\u2500", end="")
-                for i in range(7): print("\u2534\u2500\u2500\u2500", end="")
-                print("\u2518")
-            else:
-                print("  \u251C\u2500\u2500\u2500", end="")
-                for i in range(7): print("\u253C\u2500\u2500\u2500", end="")
-                print("\u2524")
-
 
     # Parses user input from <piece_rank> <piece_file> <new_rank> <new_file> to a piece object and board location (piece, rank, file)
     def start_game(self):
@@ -160,10 +128,6 @@ class QuantumChess:
             # Continue game
 
 mv = MovementValidator()
-print("Is legal: ", mv.legal_move(0, 7, 3, 5, PieceType.PAWN, turn=0, isAttacking=False))
+print("Is legal: ", mv.legal_move(0, 6, 0, 4, PieceType.PAWN, turn=0, isAttacking=False))
 board = QuantumChess()
-board.start_game()
-if (board.legal_move(1, 1, 2, 2, True, 8) == True):
-    print("true")
-else:
-    print("false")
+# board.start_game()
