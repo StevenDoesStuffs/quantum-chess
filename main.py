@@ -22,34 +22,6 @@ INITIAL_STATE = 0
 for piece in Piece:
     INITIAL_STATE += STARTING_POS[piece].value << (piece.value * BITS_PER_PIECE)
 
-def check_row_col(diff_x, diff_y):
-    if (diff_x != 0 and diff_y == 0) or (diff_x == 0 and diff_y != 0):
-        return True
-    return False
-
-def check_diag(diff_x, diff_y):
-    if abs(diff_x) == abs(diff_y):
-        return True
-    return False
-
-def check_knight(diff_x, diff_y):
-    if (abs(diff_x) == 2 and abs(diff_y) == 1) or (abs(diff_x) == 2 and abs(diff_y) == 1):
-        return True
-    return False
-
-def check_king(diff_x, diff_y):
-    if abs(diff_x) + abs(diff_y) <= 2:
-        if check_diag(diff_x, diff_y) or check_row_col(diff_x, diff_y):
-            return True
-    return False
-
-def check_pawn(diff_x, diff_y, isAttacking):
-    # ADD EN PASSANT LATER
-
-    return False
-
-
-
 class QuantumChess:
     def __init__(self) -> None:
         self.state = Qubits(TOTAL_QUBITS, INITIAL_STATE)
@@ -74,7 +46,7 @@ class QuantumChess:
         pt = piece
         diff_x = abs(new_pos_x - old_pos_x)
         diff_y = abs(new_pos_y - old_pos_y)
-        
+
         # no move
         if diff_x == diff_y == 0:
             return False
