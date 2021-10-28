@@ -27,21 +27,14 @@ def check_unitary(numeric_map):
         sum += abs(matrix[r, c]) ** 2
     return sum < THRESHOLD
 
-# TURN: (Piece, MOVE)
-# MOVE: MAP | IF
-# COND: (Piece, Position)
-# IF: (COND, TURN, TURN) # first is true, second is false
-# MAP: dict(Position, dict(Position, complex))
-
 def quantum_move(qboard, piece, move, aux_n = 0):
     if isinstance(move, dict):
         qboard.state.mcmu((1 << aux_n) - 1, range(TOTAL_QUBITS, TOTAL_QUBITS + aux_n),
-            numeric_map(move), range(piece.value * BITS_PER_PIECE, (piece.value + 1) * BITS_PER_PIECE))
+            numeric_map(move), piece.get_indices())
     else:
         condition, move_true, move_false = move
         control_piece, control_position = condition
-        controls = range(control_piece.value * BITS_PER_PIECE,
-            (control_piece.value + 1) * BITS_PER_PIECE)
+        controls = control_piece.get_indices()
         qboard.state.mcx(control_position.value, controls, TOTAL_QUBITS + aux_n)
         quantum_move(qboard, piece, move_true, aux_n + 1)
         qboard.state.x(TOTAL_QUBITS + aux_n)
@@ -60,14 +53,16 @@ def find_move(cboard, move):
         else:
             return find_move(cboard, move_false)
 
-def quantum_check(qboard, turn):
-    piece, move = turn
+def quantum_check(qboard, piece, move):
     measure_list = []
     for bv in qboard.state.statedict:
         cboard = ClassicalBoard(qboard.alive, bv)
         validator = MovementValidator(cboard, piece)
         current_move = find_move(cboard, move)
+
+        if not check_unitary(numeric_map(current_move)): return False, None
         if cboard.get_pos(piece) not in current_move: return False, None
+
         targets = current_move[cboard.get_pos(piece)]
         for target in targets:
             if not validator.check(target): return False, None

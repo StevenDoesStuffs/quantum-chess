@@ -1,6 +1,14 @@
+from typing import _Alias
+from classical import print_board, ClassicalBoard
+from quantum import quantum_check, quantum_move
+from simulator import Qubits
+from parse import parse, ParseError
 from util import *
-from classical import *
-from quantum import Qubits
+
+import os
+import sys
+import math
+import cmath
 
 # chess stuff
 STARTING_POS = dict()
@@ -20,47 +28,78 @@ for color in range(2):
 
 INITIAL_STATE = 0
 for piece in Piece:
-    INITIAL_STATE += STARTING_POS[piece].value << (piece.value * BITS_PER_PIECE)
+    INITIAL_STATE += piece.at_pos(STARTING_POS[piece])
 
 class QuantumChess:
     def __init__(self) -> None:
-        self.state = Qubits(TOTAL_QUBITS, INITIAL_STATE)
+        self.state = Qubits(INITIAL_STATE)
         self.alive = [True] * NUM_PIECES
-        self.move = 0 # white to move
-        self.can_castle = [1, 1]
+        self.move = Color.WHITE # white to move
 
     def flatten(self):
         board = None
         for bv in self.state.statedict:
             if board is None: board = ClassicalBoard(self.alive, bv)
             else: board.merge(ClassicalBoard(self.alive, bv))
-        return board
+        return board.__board
 
     def get_board(self, index):
         bv = sorted(self.state.statedict)[index] # very slow but who cares
-        return ClassicalBoard(self.alive, bv).board
+        return ClassicalBoard(self.alive, bv).__board, self.state.statedict[bv]
 
     # Parses user input from <piece_rank> <piece_file> <new_rank> <new_file> to a piece object and board location (piece, rank, file)
     def start_game(self):
-        board = self.flatten()
-        running = True
-        turn = "black"
-        while(running):
-            if(self.move): turn = "black"
-            else: turn = "white"
-            self.move = not(self.move)
-            display_board = None
-            while(display_board == None):
-                available = len(self.state.statedict)
-                display_board = int(input("Choose board (boards available " + str(available) + "): "))
-                if(display_board not in range(available)):
-                    print("Invalid board selected")
-                    display_board = None
-            display_board = self.get_board(display_board)
-            self.print_board(display_board)
-            # Continue game
+        current_board = None
+        current_message = ''
+        while self.alive[Piece.WHITE_KING.value] and self.alive[Piece.BLACK_KING.value]:
+            # os.system('cls' if os.name == 'nt' else 'clear')
+            if current_board is not None:
+                board, coeff = self.get_board(current_board)
+                radius, theta = cmath.polar(coeff)
+                print('Board {:2} of {:2}, (r^2, theta) = ({:4.3}, {:4.3}pi)'.format(
+                    current_board + 1, len(self.state.statedict),
+                    radius ** 2, theta / math.pi))
+                print_board(board)
+            else:
+                print('Flattened board ({} board total)'.format(len(self.state.statedict)))
+                print_board(self.flatten())
 
-mv = MovementValidator()
-# print("Is legal: ", mv.legal_move(0, 6, 0, 4, PieceType.PAWN, turn=0, isAttacking=False WRONG
-board = QuantumChess()
-# board.start_game()
+            print()
+            print(current_message)
+
+            print('Enter command:', end=' ')
+            sys.stdout.flush()
+            command = input()
+            if command.startswith('board'):
+                try:
+                    bn_str = command[len('board'):].strip()
+                    if bn_str == 'flat': current_board = None
+                    else: current_board = int(bn_str) - 1
+                except ValueError:
+                    current_message = 'Invalid board!'
+            else:
+                command = command.lower()
+                try:
+                    piece, move = parse(command, self.move)
+                except (ParseError, IndexError, ValueError) :
+                    current_message = 'Invalid move!'
+                    continue
+
+                check, measure_list = quantum_check(self, piece, move)
+                print(check)
+                if not check:
+                    current_message = 'Invalid move!'
+                    continue
+                # ordering?
+                quantum_move(self, piece, move)
+                self.state.measure((index for mp in measure_list \
+                    for index in mp.get_indices()))
+                # unaliving
+                for bv in self.state.statedict:
+                    cboard = ClassicalBoard(self.alive, bv)
+                    for mp in measure_list:
+                        if cboard.get_pos(piece) == cboard.get_pos(mp) \
+                            and piece != mp: self.alive[mp] = False
+                self.move = Color.BLACK if self.move == Color.WHITE else Color.WHITE
+
+QuantumChess().start_game()

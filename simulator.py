@@ -61,9 +61,7 @@ class Qubits:
         self.clean()
 
     def measure(self, indices):
-        result = 0
-        for i in range(len(indices)):
-            index = indices[i]
+        for index in indices:
             p1 = 0
             for bv in self.statedict:
                 if bit(bv, index) != 0:
@@ -73,8 +71,6 @@ class Qubits:
                 if bit(bv, index) != int(is_one):
                     self.statedict[bv] = 0
             self.normalize()
-            if is_one: result += 1 << i
-        return result
 
     def normalize(self):
         mag = 0

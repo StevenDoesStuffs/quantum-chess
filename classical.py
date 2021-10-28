@@ -3,34 +3,36 @@ import math
 
 class ClassicalBoard:
     def __init__(self, alive, bv) -> None:
-        self.bv = bv
-        self.board = [[None for _i in range(BOARD_SIZE)] for _j in range(BOARD_SIZE)]
-        self.put_board(bv)
-        self.alive = alive
+        self.__bv = bv
+        self.__alive = alive
+        self.__board = [[None for _i in range(BOARD_SIZE)] for _j in range(BOARD_SIZE)]
+        self.__overlap = False
+        for piece in Piece:
+            if not self.__alive[piece.value]: continue
+            file, rank = self.get_pos(piece)
+            if self.__board[file][rank] is not None:
+                self.__overlap = True
+            self.__board[file][rank] = piece
         pass
 
     def merge(self, other):
-        assert self.alive == other.alive
+        assert not self.__overlap
+        assert self.__alive == other.alive
         for i in range(BOARD_SIZE):
             for j in range(BOARD_SIZE):
-                assert self.board[i][j] is None or \
-                    self.board[i][j] == other[i][j]
-                self.board[i][j] = other[i][j]
-
-    def put_board(self):
-        for piece in Piece:
-            if not self.alive[piece.value]: continue
-
-            file, rank = self.get_pos(piece)
-            self.board[file][rank] = piece
+                if other.board[i][j] is not None:
+                    assert self.__board[i][j] is None or \
+                        self.__board[i][j] == other.board[i][j]
+                    self.__board[i][j] = other.board[i][j]
 
     def get_pos(self, piece):
-        if not self.alive[piece.value]: return None
-        else: return Position((self.bv >>
+        if not self.__alive[piece.value]: return None
+        else: return Position((self.__bv >>
             (piece.value * 6)) & ((1 << BITS_PER_PIECE) - 1))
 
     def get_piece(self, pos):
-        return self.board[pos]
+        assert not self.__overlap
+        return self.__board[pos[0]][pos[1]]
 
 
 class MovementValidator:
@@ -39,14 +41,14 @@ class MovementValidator:
         self.board = cboard
         self.piece = piece
 
-    def __check_axis(diff_x, diff_y):
+    def __check_axis(self, diff_x, diff_y):
         return (diff_x and not diff_y) or (not diff_x and diff_y)
 
-    def __check_diag(diff_x, diff_y):
+    def __check_diag(self, diff_x, diff_y):
         return abs(diff_x) == abs(diff_y)
 
-    def __check_knight(diff_x, diff_y):
-        return (abs(diff_x) == 2 and abs(diff_y) == 1) or (abs(diff_x) == 2 and abs(diff_y) == 1)
+    def __check_knight(self, diff_x, diff_y):
+        return (abs(diff_x) == 2 and abs(diff_y) == 1) or (abs(diff_x) == 1 and abs(diff_y) == 2)
 
     def __check_queen(self, diff_x, diff_y):
         return self.__check_axis(diff_x, diff_y) or self.__check_diag(diff_x, diff_y)
@@ -82,7 +84,7 @@ class MovementValidator:
         diff_x, diff_y = self.__diff(new_pos)
         pos = self.board.get_pos(self.piece)
 
-        if self.piece.get_type() == PieceType.KNIGHT.value:
+        if self.piece.get_type() == PieceType.KNIGHT:
             return False
 
         for _i in range(1, max(diff_x, diff_y)):
@@ -104,6 +106,9 @@ class MovementValidator:
         elif pt == PieceType.PAWN: return self.__check_pawn(diff_x, diff_y)
         else: return False # Invalid piece
 
+    def set_piece(self, piece):
+        self.piece = piece
+
     def check(self, new_pos):
         return self.__check_new_pos(new_pos) and not self.__collides(new_pos)
 
@@ -113,24 +118,24 @@ class MovementValidator:
 
 
 def print_board(board):
-    print("    1   2   3   4   5   6   7   8")
     print("  \u250C\u2500\u2500\u2500", end="")
     for i in range(7): print("\u252C\u2500\u2500\u2500", end="")
     print("\u2510")
     for i in range(BOARD_SIZE):
-        print(i + 1, "\u2502", end="")
+        print(BOARD_SIZE - i, "\u2502", end="")
         for j in range(BOARD_SIZE):
             piece = (board[j][7-i])
             if piece != None:
-                piece_code = piece.get_type() + (piece.get_color() << 4)
+                piece_code = piece.get_type().value + (piece.get_color() << 4)
                 print(" " + pieceType.get(piece_code) + " \u2502", end = "")
             else: print("   \u2502", end = "")
         print("")
-        if(i == 7):
+        if(i == BOARD_SIZE - 1):
             print("  \u2514\u2500\u2500\u2500", end="")
-            for i in range(7): print("\u2534\u2500\u2500\u2500", end="")
+            for i in range(BOARD_SIZE - 1): print("\u2534\u2500\u2500\u2500", end="")
             print("\u2518")
         else:
             print("  \u251C\u2500\u2500\u2500", end="")
-            for i in range(7): print("\u253C\u2500\u2500\u2500", end="")
+            for i in range(BOARD_SIZE - 1): print("\u253C\u2500\u2500\u2500", end="")
             print("\u2524")
+    print("    A   B   C   D   E   F   G   H")

@@ -107,13 +107,18 @@ class Piece(Enum):
     def get_color(self):
         return self.value >> 4
 
-    # returns PTTI with all index bits cleared
-    # comparable with PieceType.value
     def get_type(self):
-        if self.is_pawn(): return 0b01000
+        if self.is_pawn(): return PieceType.PAWN
         upper = self.value & 0b00110
-        if upper == 6: return upper + self.get_piece_index()
-        else: return upper
+        if upper == 6: return PieceType(upper + self.get_piece_index())
+        else: return PieceType(upper)
+
+    def get_indices(self):
+        start = self.value * BITS_PER_PIECE
+        return range(start, start + BITS_PER_PIECE)
+
+    def at_pos(self, pos):
+        return pos.value << (self.value * BITS_PER_PIECE)
 
 class Position:
     def __init__(self, file_or_square, rank = None) -> None:
@@ -125,6 +130,12 @@ class Position:
                     (ord(file_or_square[1]) - ord('1'))
             else: self.value = file_or_square
         else: self.value = (file_or_square << BITS_PER_DIM) + rank
+
+    def __eq__(self, o: object) -> bool:
+        return self.value == o.value
+
+    def __hash__(self) -> int:
+        return hash(self.value)
 
     def __repr__(self) -> str:
         file, rank = self.pair()

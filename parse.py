@@ -148,8 +148,10 @@ def read_turn(input, index, color):
     return index, piece, move
 
 def parse(input, color):
-    input = input.lower()
-    return read_turn(input, 0, color)[1:]
+    index, piece, move = read_turn(input, 0, color)
+    index = read_whitespace(input, index)
+    if index != len(input): raise ParseError(index)
+    return piece, move
 
 
 # TURN: (Piece, MOVE)
