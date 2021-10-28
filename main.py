@@ -40,11 +40,11 @@ class QuantumChess:
         for bv in self.state.statedict:
             if board is None: board = ClassicalBoard(self.alive, bv)
             else: board.merge(ClassicalBoard(self.alive, bv))
-        return board.__board
+        return board.board
 
     def get_board(self, index):
         bv = sorted(self.state.statedict)[index] # very slow but who cares
-        return ClassicalBoard(self.alive, bv).__board, self.state.statedict[bv]
+        return ClassicalBoard(self.alive, bv).board, self.state.statedict[bv]
 
     # Parses user input from <piece_rank> <piece_file> <new_rank> <new_file> to a piece object and board location (piece, rank, file)
     def start_game(self):

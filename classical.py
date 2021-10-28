@@ -4,35 +4,35 @@ import math
 class ClassicalBoard:
     def __init__(self, alive, bv) -> None:
         self.__bv = bv
-        self.__alive = alive
-        self.__board = [[None for _i in range(BOARD_SIZE)] for _j in range(BOARD_SIZE)]
-        self.__overlap = False
+        self.alive = alive
+        self.overlap = False
+        self.board = [[None for _i in range(BOARD_SIZE)] for _j in range(BOARD_SIZE)]
         for piece in Piece:
-            if not self.__alive[piece.value]: continue
+            if not self.alive[piece.value]: continue
             file, rank = self.get_pos(piece)
-            if self.__board[file][rank] is not None:
-                self.__overlap = True
-            self.__board[file][rank] = piece
+            if self.board[file][rank] is not None:
+                self.overlap = True
+            self.board[file][rank] = piece
         pass
 
     def merge(self, other):
-        assert not self.__overlap
-        assert self.__alive == other.alive
+        assert not self.overlap
+        assert self.alive == other.alive
         for i in range(BOARD_SIZE):
             for j in range(BOARD_SIZE):
                 if other.board[i][j] is not None:
-                    assert self.__board[i][j] is None or \
-                        self.__board[i][j] == other.board[i][j]
-                    self.__board[i][j] = other.board[i][j]
+                    assert self.board[i][j] is None or \
+                        self.board[i][j] == other.board[i][j]
+                    self.board[i][j] = other.board[i][j]
 
     def get_pos(self, piece):
-        if not self.__alive[piece.value]: return None
+        if not self.alive[piece.value]: return None
         else: return Position((self.__bv >>
             (piece.value * 6)) & ((1 << BITS_PER_PIECE) - 1))
 
     def get_piece(self, pos):
-        assert not self.__overlap
-        return self.__board[pos[0]][pos[1]]
+        assert not self.overlap
+        return self.board[pos[0]][pos[1]]
 
 
 class MovementValidator:
