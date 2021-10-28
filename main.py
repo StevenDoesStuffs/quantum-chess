@@ -48,7 +48,7 @@ class QuantumChess:
 
     def get_board(self, index):
         board = create_board()
-        bv = sorted(self.state.comp)[index] # very slow but who cares
+        bv = sorted(self.state.statedict)[index] # very slow but who cares
         put_board(board, bv)
         return board;
 
@@ -82,33 +82,20 @@ class QuantumChess:
         running = True
         turn = "black"
         while(running):
-            if(self.move):
-                self.move = 0
-                turn = "black"
-            else:
-                self.move = 1
-                turn = "white"
-            # Lol ^
-            piece = None
-            while(piece == None):
-                # board = self.flatten()
-                self.printBoard()
-                print("It is " + turn + "'s turn")
-                toParse = input("Use <piece_rank> <piece_file> <new_rank> <new_file> to make your move: ")
-                toParse = toParse.split(" ")
-                if(len(toParse) != 4 ):
-                    print("Invalid input!")
-                    continue
-                piece = board[int(toParse[0])][int(toParse[1])]
+            if(self.move): turn = "black"
+            else: turn = "white"
+            self.move = not(self.move)
+            display_board = None
+            while(display_board == None):
+                available = len(self.state.statedict)
+                display_board = int(input("Choose board (boards available " + str(available) + "): "))
+                if(display_board not in range(available)):
+                    print("Invalid board selected")
+                    display_board = None
+            display_board = self.get_board(display_board)
+            self.print_board(display_board)
+            # Continue game
 
-                new_rank = toParse[2]
-                new_file = toParse[3]
-
-                if piece == None:
-                    print("Invalid piece!")
-                    continue
-
-                # At this point we have a piece object (piece) that needs to be moved to a new location (new_rank, new_file)
 
 board = QuantumChess()
 board.start_game()
