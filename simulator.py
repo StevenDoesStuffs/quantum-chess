@@ -64,13 +64,14 @@ class Qubits:
         for index in indices:
             p1 = 0
             for bv in self.statedict:
-                if bit(bv, index) != 0:
+                if bit(bv, index) == 1:
                     p1 += abs(self.statedict[bv]) ** 2
             is_one = random.uniform(0, 1) <= p1
             for bv in self.statedict:
                 if bit(bv, index) != int(is_one):
                     self.statedict[bv] = 0
             self.normalize()
+            self.clean()
 
     def normalize(self):
         mag = 0
@@ -78,7 +79,7 @@ class Qubits:
             mag += abs(self.statedict[bv]) ** 2
         mag = sqrt(mag)
         for bv in self.statedict:
-            self.statedict[bv] /= sqrt(mag)
+            self.statedict[bv] /= mag
 
     def clean(self):
         self.statedict = defaultdict(complex, filter(

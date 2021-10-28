@@ -152,10 +152,3 @@ def parse(input, color):
     index = read_whitespace(input, index)
     if index != len(input): raise ParseError(index)
     return piece, move
-
-
-# TURN: (Piece, MOVE)
-# MOVE: MAP | IF
-# COND: (Piece, Position)
-# IF: (COND, TURN, TURN) # first is true, second is false
-# MAP: dict(Position, dict(Position, complex))

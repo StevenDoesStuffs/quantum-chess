@@ -85,20 +85,18 @@ class QuantumChess:
                     continue
 
                 check, measure_list = quantum_check(self, piece, move)
-                print(check)
                 if not check:
                     current_message = 'Invalid move!'
                     continue
-                # ordering?
                 quantum_move(self, piece, move)
                 self.state.measure((index for mp in measure_list \
                     for index in mp.get_indices()))
-                # unaliving
                 for bv in self.state.statedict:
                     cboard = ClassicalBoard(self.alive, bv)
                     for mp in measure_list:
-                        if cboard.get_pos(piece) == cboard.get_pos(mp) \
-                            and piece != mp: self.alive[mp] = False
+                        if cboard.get_pos(mp) is not None and \
+                            cboard.get_pos(piece) == cboard.get_pos(mp) \
+                            and piece != mp: self.alive[mp.value] = False
                 self.move = Color.BLACK if self.move == Color.WHITE else Color.WHITE
 
 QuantumChess().start_game()

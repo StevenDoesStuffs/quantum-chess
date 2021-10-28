@@ -62,16 +62,13 @@ class MovementValidator:
         is_attacking = self.board.get_piece(
             Position(old_x + diff_x, old_y + diff_y)) is not None
 
-        if self.piece.get_color() == Color.WHITE.value:
-            if is_attacking: return (diff_y == -1) and (abs(diff_x) == 1)
-            elif self.board.get_pos(self.piece)[1] == 1 \
-                and diff_y == -2 and not diff_x: return True
-            else: return not diff_x and diff_y == -1
-        else:
-            if is_attacking: return (diff_y == 1) and (abs(diff_x) == 1)
-            elif self.board.get_pos(self.piece)[1] == 6 \
-                and diff_y == 2 and not diff_x: return True
-            else: return not diff_x and diff_y == 1
+        okay = False
+        dir = 1 if self.piece.get_color() == Color.WHITE.value else -1
+        okay |= is_attacking and (diff_y == dir) and (abs(diff_x) == 1)
+        okay |= self.board.get_pos(self.piece)[1] == (1 if dir == 1 else 6) \
+            and diff_y == 2*dir and not diff_x
+        okay |= not diff_x and diff_y == dir
+        return okay
 
     def __diff(self, new_pos):
         diff_x, diff_y = new_pos
@@ -87,9 +84,9 @@ class MovementValidator:
         if self.piece.get_type() == PieceType.KNIGHT:
             return False
 
-        for _i in range(1, max(diff_x, diff_y)):
-            if diff_x != 0: pos[0] += math.copysign(1, diff_x)
-            if diff_y != 0: pos[1] += math.copysign(1, diff_y)
+        for _i in range(1, max(abs(diff_x), abs(diff_y))):
+            if diff_x != 0: pos[0] += int(math.copysign(1, diff_x))
+            if diff_y != 0: pos[1] += int(math.copysign(1, diff_y))
             if self.board.get_piece(pos) is not None: return True
         return False
 
