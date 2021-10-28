@@ -1,8 +1,7 @@
 from math import sqrt
 import random
 from collections import defaultdict
-
-THRESHOLD = 1e-5
+from util import THRESHOLD
 
 def bit(num, i):
     return int((num & (1 << i)) != 0)
@@ -84,5 +83,3 @@ class Qubits:
             lambda x: abs(x[1]) >= THRESHOLD,
             self.statedict.items()))
         self.normalize()
-
-

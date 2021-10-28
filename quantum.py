@@ -1,4 +1,5 @@
 from scipy import sparse
+from simulator import THRESHOLD
 from util import *
 
 def numeric_map(pos_map):
@@ -10,7 +11,7 @@ def numeric_map(pos_map):
     }
 
 def check_unitary(numeric_map):
-    matrix = sparse.identity(BOARD_SIZE ** 2, dtype=complex)
+    matrix = sparse.identity(BOARD_SIZE ** 2, dtype=complex, format='dok')
     for source in numeric_map: # source = col, target = row
         matrix[source, source] = 0
     for source in numeric_map:
@@ -18,7 +19,9 @@ def check_unitary(numeric_map):
             matrix[target, source] = numeric_map[source][target]
     matrix = matrix.conjtransp().dot(matrix)
     matrix -= sparse.identity(BOARD_SIZE ** 2, dtype=complex)
+
     sum = 0
-    for elem in matrix.keys():
-        sum += abs(matrix[elem]) ** 2
-    return sqrt(sum)
+    rows, cols = matrix.nonzero()
+    for r, c in zip(list(rows), list(cols)):
+        sum += abs(matrix[r, c]) ** 2
+    return sum < THRESHOLD
