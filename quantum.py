@@ -1,4 +1,4 @@
-from numpy.lib.arraysetops import isin
+from classical import ClassicalBoard, MovementValidator
 from scipy import sparse
 from simulator import THRESHOLD
 from util import *
@@ -32,30 +32,47 @@ def check_unitary(numeric_map):
 # COND: (Piece, Position)
 # IF: (COND, TURN, TURN) # first is true, second is false
 # MAP: dict(Position, dict(Position, complex))
-# move: condition, turn, turn
-def find_move(move, cboard):
+
+def quantum_move(qboard, piece, move, aux_n = 0):
+    if isinstance(move, dict):
+        qboard.state.mcmu((1 << aux_n) - 1, range(TOTAL_QUBITS, TOTAL_QUBITS + aux_n),
+            numeric_map(move), range(piece.value * BITS_PER_PIECE, (piece.value + 1) * BITS_PER_PIECE))
+    else:
+        condition, move_true, move_false = move
+        control_piece, control_position = condition
+        controls = range(control_piece.value * BITS_PER_PIECE,
+            (control_piece.value + 1) * BITS_PER_PIECE)
+        qboard.state.mcx(control_position.value, controls, TOTAL_QUBITS + aux_n)
+        quantum_move(qboard, piece, move_true, aux_n + 1)
+        qboard.state.x(TOTAL_QUBITS + aux_n)
+        quantum_move(qboard, piece, move_false, aux_n + 1)
+        qboard.state.x(TOTAL_QUBITS + aux_n)
+        qboard.state.mcx(control_position.value, controls, TOTAL_QUBITS + aux_n)
+
+def find_move(cboard, move):
     if isinstance(move, dict):
         return move
     else:
-        condition, turn_true, turn_false = move
+        condition, move_true, move_false = move
         piece, position = condition
-        file, rank = position.pair()
-        if cboard[file][rank] == piece:
-            return find_move(turn_true, cboard)
+        if cboard.get_piece(position) == piece:
+            return find_move(cboard, move_true)
         else:
-            return find_move(turn_false, cboard)
+            return find_move(cboard, move_false)
 
-def quantum_move(board, turn, mv):
+def quantum_check(qboard, turn):
     piece, move = turn
-    
-    if isinstance(move, dict):
-        mv.legal_move(piece[0].pair(), piece[1].pair(), )
-
-    return
-
-def quantum_check(board, move):
-    for cboard in board.
-
-
-
-    return
+    measure_list = []
+    for bv in qboard.state.statedict:
+        cboard = ClassicalBoard(qboard.alive, bv)
+        validator = MovementValidator(cboard, piece)
+        current_move = find_move(cboard, move)
+        if cboard.get_pos(piece) not in current_move: return False, None
+        targets = current_move[cboard.get_pos(piece)]
+        for target in targets:
+            if not validator.check(target): return False, None
+            eaten = validator.get_eaten(target)
+            if eaten is not None:
+                measure_list.append(eaten)
+    if len(measure_list): measure_list.append(piece)
+    return True, measure_list

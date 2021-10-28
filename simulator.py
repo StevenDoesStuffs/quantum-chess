@@ -7,24 +7,30 @@ def bit(num, i):
     return int((num & (1 << i)) != 0)
 
 class Qubits:
-    def __init__(self, n, val):
-        self.n = n
+    def __init__(self, val):
         self.statedict = defaultdict(complex)
         self.statedict[val] = complex(1)
 
-    def append(self):
-        self.n += 1
-        return self.n - 1
-
-    def cx(self, ctrl, target):
+    def x(self, target):
         new = defaultdict(complex)
         for bv in self.statedict:
-            index = bv if bit(bv, ctrl) == 0 else bv ^ (1 << target)
-            new[index] += self.statedict[bv]
+            new[bv ^ (1 << target)] += self.statedict[bv]
         self.statedict = new
         self.clean()
 
-    def mcmu(self, pattern, perm, controls, targets):
+    def mcx(self, pattern, controls, target):
+        new = defaultdict(complex)
+        for bv in self.statedict:
+            for i in range(len(controls)):
+                if bit(bv, controls[i]) != bit(pattern, i):
+                    new[bv] += self.statedict[bv]
+                    break
+            else:
+                new[bv ^ (1 << target)] += self.statedict[bv]
+        self.statedict = new
+        self.clean()
+
+    def mcmu(self, pattern, controls, perm, targets):
         new = defaultdict(complex)
         bitmask = sum((1 << target for target in targets))
         def tb(val_t):

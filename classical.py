@@ -78,8 +78,20 @@ class MovementValidator:
         diff_y -= old_y
         return diff_x, diff_y
 
-    # Checks for valid classical move (DOES NOT CHECK FOR COLLISIONS)
-    def legal_move(self, new_pos):
+    def __collides(self, new_pos):
+        diff_x, diff_y = self.__diff(new_pos)
+        pos = self.board.get_pos(self.piece)
+
+        if self.piece.get_type() == PieceType.KNIGHT.value:
+            return False
+
+        for _i in range(1, max(diff_x, diff_y)):
+            if diff_x != 0: pos[0] += math.copysign(1, diff_x)
+            if diff_y != 0: pos[1] += math.copysign(1, diff_y)
+            if self.board.get_piece(pos) is not None: return True
+        return False
+
+    def __check_new_pos(self, new_pos):
         pt = self.piece.get_type()
         diff_x, diff_y = self.__diff(new_pos)
 
@@ -92,18 +104,8 @@ class MovementValidator:
         elif pt == PieceType.PAWN: return self.__check_pawn(diff_x, diff_y)
         else: return False # Invalid piece
 
-    def collision_check(self, new_pos):
-        diff_x, diff_y = self.__diff(new_pos)
-        pos = self.board.get_pos(self.piece)
-
-        if self.piece.get_type() == PieceType.KNIGHT.value:
-            return False
-
-        for _i in range(1, max(diff_x, diff_y)):
-            if diff_x != 0: pos[0] += math.copysign(1, diff_x)
-            if diff_y != 0: pos[1] += math.copysign(1, diff_y)
-            if self.board.get_piece(pos) is not None: return True
-        return False
+    def check(self, new_pos):
+        return self.__check_new_pos(new_pos) and not self.__collides(new_pos)
 
     def get_eaten(self, new_pos):
         return self.board.get_piece(new_pos)
