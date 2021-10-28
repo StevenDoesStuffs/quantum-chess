@@ -47,9 +47,20 @@ class MovementValidator:
     def collision_check(self, cboard, piece, old_pos, new_pos):
         diff_x = abs(new_pos[0] - old_pos[0])
         diff_y = abs(new_pos[1] - old_pos[1])
-        if piece.get_type() != 2:
-            return
-        return
+        if piece.get_type() != PieceType.KNIGHT.value:
+            while(diff_x != 0 or diff_y != 0):
+                if (diff_x != 0): 
+                    diff_x -= 1
+                    old_pos[0] += 1
+                if (diff_y != 0): 
+                    diff_y -= 1
+                    old_pos[1] += 1
+                if cboard[old_pos[0]][old_pos[1]] != None:
+                    return True # possibly return piece at spot
+        else:
+            if cboard[new_pos[0]][new_pos[1]] != None:
+                return True # possibly return piece at spot
+        return False
 
 def put_board(board, bv):
     for piece in Piece:
