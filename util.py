@@ -90,6 +90,7 @@ class Piece(Enum):
     BLACK_PAWN_6 = auto()
     BLACK_PAWN_7 = auto()
 
+    #these all return a True or False is the piece is a piece or a pawn
     def is_pawn(self):
         return bool(self.value & 0b01000)
 

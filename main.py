@@ -29,12 +29,14 @@ INITIAL_STATE = 0
 for piece in Piece:
     INITIAL_STATE += piece.at_pos(STARTING_POS[piece])
 
+# handles all of the high level content and function of the game
 class QuantumChess:
     def __init__(self) -> None:
         self.state = Qubits(INITIAL_STATE)
         self.alive = [True] * NUM_PIECES
         self.move = Color.WHITE # white to move
 
+    # flattens all quantum boards into one classical representation of the board
     def flatten(self):
         board = None
         for bv in self.state.statedict:

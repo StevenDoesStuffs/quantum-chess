@@ -15,6 +15,7 @@ class ClassicalBoard:
             self.board[file][rank] = piece
         pass
 
+    # combines boards
     def merge(self, other):
         assert not self.overlap
         assert self.alive == other.alive

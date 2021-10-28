@@ -67,7 +67,7 @@ def read_cond(input, index):
     index = read_str(input, index, 'at')
     index, pos = read_pos(input, index)
     return index, (piece, pos)
-
+    
 def read_complex(input, index):
     index = read_whitespace(input, index)
     index = read_str(input, index, '(')
@@ -82,7 +82,7 @@ def read_complex(input, index):
     return end + 1, sqrt(mag2) * (e ** (1j * pi * angle))
 
 
-
+# Parses input for the if syntax
 def read_if(input, index):
     index = read_whitespace(input, index)
     index = read_str(input, index, 'if')

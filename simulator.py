@@ -6,6 +6,7 @@ from util import THRESHOLD
 def bit(num, i):
     return int((num & (1 << i)) != 0)
 
+# simulator from last semester
 class Qubits:
     def __init__(self, val):
         self.statedict = defaultdict(complex)
@@ -18,6 +19,7 @@ class Qubits:
         self.statedict = new
         self.clean()
 
+    # multi controlled not gate
     def mcx(self, pattern, controls, target):
         new = defaultdict(complex)
         for bv in self.statedict:
@@ -30,6 +32,7 @@ class Qubits:
         self.statedict = new
         self.clean()
 
+    # multi controlled multi unitary gate that takes in a pattern, list of controls, permutation, and targets
     def mcmu(self, pattern, controls, perm, targets):
         new = defaultdict(complex)
         bitmask = sum((1 << target for target in targets))
@@ -60,6 +63,7 @@ class Qubits:
         self.statedict = new
         self.clean()
 
+    # collapses state and returns output
     def measure(self, indices):
         for index in indices:
             p1 = 0
@@ -73,6 +77,7 @@ class Qubits:
             self.normalize()
             self.clean()
 
+    # does what it says
     def normalize(self):
         mag = 0
         for bv in self.statedict:
@@ -81,6 +86,7 @@ class Qubits:
         for bv in self.statedict:
             self.statedict[bv] /= mag
 
+    # cleans up the statevectors and removes noise added from real value math
     def clean(self):
         self.statedict = defaultdict(complex, filter(
             lambda x: abs(x[1]) >= THRESHOLD,

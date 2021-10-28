@@ -11,6 +11,7 @@ def numeric_map(pos_map):
         } for source in pos_map
     }
 
+# verifies that the user inputted movement is actually a unitary function
 def check_unitary(numeric_map):
     matrix = sparse.identity(BOARD_SIZE ** 2, dtype=complex, format='dok')
     for source in numeric_map: # source = col, target = row
@@ -27,6 +28,7 @@ def check_unitary(numeric_map):
         sum += abs(matrix[r, c]) ** 2
     return sum < THRESHOLD
 
+# seuqentially moves through cboards and attempts to move the piece
 def quantum_move(qboard, piece, move, aux_n = 0):
     if isinstance(move, dict):
         qboard.state.mcmu((1 << aux_n) - 1, range(TOTAL_QUBITS, TOTAL_QUBITS + aux_n),
@@ -53,6 +55,7 @@ def find_move(cboard, move):
         else:
             return find_move(cboard, move_false)
 
+# sequentially runs through your move in an attempt to search for collisions
 def quantum_check(qboard, piece, move):
     measure_list = []
     for bv in qboard.state.statedict:
