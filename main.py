@@ -30,16 +30,15 @@ class QuantumChess:
         self.can_castle = [1, 1]
 
     def flatten(self):
-        board = create_board()
+        board = None
         for bv in self.state.statedict:
-            put_board(board, bv)
+            if board is None: board = ClassicalBoard(self.alive, bv)
+            else: board.merge(ClassicalBoard(self.alive, bv))
         return board
 
     def get_board(self, index):
-        board = create_board()
         bv = sorted(self.state.statedict)[index] # very slow but who cares
-        put_board(board, bv)
-        return board
+        return ClassicalBoard(self.alive, bv).board
 
     # Parses user input from <piece_rank> <piece_file> <new_rank> <new_file> to a piece object and board location (piece, rank, file)
     def start_game(self):

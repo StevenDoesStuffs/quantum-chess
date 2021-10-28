@@ -130,6 +130,13 @@ class Position:
         file, rank = self.pair()
         return chr(ord('a') + file) + chr(ord('1') + rank)
 
+    def __getitem__(self, key):
+        return self.pair()[key]
+
+    def __setitem__(self, key, value):
+        self.value &= ~(0b111 << (key * BITS_PER_DIM))
+        self.value += value << (key * BITS_PER_DIM)
+
     # file, rank
     def pair(self):
         return self.value >> BITS_PER_DIM, self.value & ((1 << BITS_PER_DIM) - 1)

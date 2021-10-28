@@ -150,3 +150,10 @@ def read_turn(input, index, color):
 def parse(input, color):
     input = input.lower()
     return read_turn(input, 0, color)[1:]
+
+
+# TURN: (Piece, MOVE)
+# MOVE: MAP | IF
+# COND: (Piece, Position)
+# IF: (COND, TURN, TURN) # first is true, second is false
+# MAP: dict(Position, dict(Position, complex))
