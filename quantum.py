@@ -1,3 +1,4 @@
+from numpy.lib.arraysetops import isin
 from scipy import sparse
 from simulator import THRESHOLD
 from util import *
@@ -25,3 +26,36 @@ def check_unitary(numeric_map):
     for r, c in zip(list(rows), list(cols)):
         sum += abs(matrix[r, c]) ** 2
     return sum < THRESHOLD
+
+# TURN: (Piece, MOVE)
+# MOVE: MAP | IF
+# COND: (Piece, Position)
+# IF: (COND, TURN, TURN) # first is true, second is false
+# MAP: dict(Position, dict(Position, complex))
+# move: condition, turn, turn
+def find_move(move, cboard):
+    if isinstance(move, dict):
+        return move
+    else:
+        condition, turn_true, turn_false = move
+        piece, position = condition
+        file, rank = position.pair()
+        if cboard[file][rank] == piece:
+            return find_move(turn_true, cboard)
+        else:
+            return find_move(turn_false, cboard)
+
+def quantum_move(board, turn, mv):
+    piece, move = turn
+    
+    if isinstance(move, dict):
+        mv.legal_move(piece[0].pair(), piece[1].pair(), )
+
+    return
+
+def quantum_check(board, move):
+    for cboard in board.
+
+
+
+    return

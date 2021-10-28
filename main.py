@@ -35,10 +35,6 @@ class QuantumChess:
             put_board(board, bv)
         return board
 
-    def quantum_move(self, turn):
-
-        return
-
     def get_board(self, index):
         board = create_board()
         bv = sorted(self.state.statedict)[index] # very slow but who cares
@@ -66,6 +62,6 @@ class QuantumChess:
             # Continue game
 
 mv = MovementValidator()
-print("Is legal: ", mv.legal_move(0, 6, 0, 4, PieceType.PAWN, turn=0, isAttacking=False))
+# print("Is legal: ", mv.legal_move(0, 6, 0, 4, PieceType.PAWN, turn=0, isAttacking=False WRONG
 board = QuantumChess()
 # board.start_game()
