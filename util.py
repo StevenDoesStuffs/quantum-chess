@@ -22,6 +22,11 @@ class PieceType(Enum):
     KING = 7
     PAWN = 8
 
+@unique
+class Color(Enum):
+    WHITE = 0b00000
+    BLACK = 0b10000
+
 pieceType = {
     0 : "\u2656", ## White Rook
     2 : "\u2658", ## White Knight
@@ -114,11 +119,15 @@ class Position:
         if rank is None:
             if isinstance(file_or_square, str):
                 file_or_square = file_or_square.lower()
-                self.value = ((file_or_square[1] - 'a') << BITS_PER_DIM) + (file_or_square[0] - '1')
-            else:
-                self.value = file_or_square
-        else:
-            self.value = (file_or_square << BITS_PER_DIM) + rank
+                self.value = (
+                    (ord(file_or_square[0]) - ord('a')) << BITS_PER_DIM) + \
+                    (ord(file_or_square[1]) - ord('1'))
+            else: self.value = file_or_square
+        else: self.value = (file_or_square << BITS_PER_DIM) + rank
+
+    def __repr__(self) -> str:
+        file, rank = self.pair()
+        return chr(ord('a') + file) + chr(ord('1') + rank)
 
     # file, rank
     def pair(self):

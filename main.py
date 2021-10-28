@@ -1,4 +1,5 @@
 from util import *
+from classical import *
 from quantum import Qubits
 
 # chess stuff
@@ -158,9 +159,8 @@ class QuantumChess:
             self.print_board(display_board)
             # Continue game
 
-
-
-
+mv = MovementValidator()
+print("Is legal: ", mv.legal_move(0, 7, 3, 5, PieceType.PAWN, turn=0, isAttacking=False))
 board = QuantumChess()
 board.start_game()
 if (board.legal_move(1, 1, 2, 2, True, 8) == True):
