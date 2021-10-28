@@ -1,4 +1,8 @@
 Input Tutorial
+
+TO START THE GAME:
+    type "python main.py" into the terminal while accessing the folder where the project is located.
+
 How to move a piece classically:
 The idea behind this is that you need to swap the position of the vector 
 entries for the probability and phase of your old position and new position.
