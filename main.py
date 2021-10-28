@@ -158,6 +158,34 @@ def put_board(board, bv):
 def create_board():
     return [[None for _i in range(BOARD_SIZE)] for _j in range(BOARD_SIZE)]
 
+def check_row_col(diff_x, diff_y):
+    if (diff_x != 0 and diff_y == 0) or (diff_x == 0 and diff_y != 0):
+        return True
+    return False
+
+def check_diag(diff_x, diff_y):
+    if abs(diff_x) == abs(diff_y):
+        return True
+    return False
+
+def check_knight(diff_x, diff_y):
+    if (abs(diff_x) == 2 and abs(diff_y) == 1) or (abs(diff_x) == 2 and abs(diff_y) == 1):
+        return True
+    return False
+
+def check_king(diff_x, diff_y):
+    if abs(diff_x) + abs(diff_y) <= 2:
+        if check_diag(diff_x, diff_y) or check_row_col(diff_x, diff_y):
+            return True
+    return False
+
+def check_pawn(diff_x, diff_y, isAttacking):
+    # ADD EN PASSANT LATER
+
+    return False
+
+
+
 class QuantumChess:
     def __init__(self) -> None:
         self.state = Qubits(TOTAL_QUBITS, INITIAL_STATE)
@@ -171,23 +199,45 @@ class QuantumChess:
             put_board(board, bv)
         return board
 
+    def classical_check(self, board, unitary):
 
+        return
 
-    def legal_move(old_pos_x, old_pos_y, new_pos_x, new_pos_y, isAttacking, piece):
-        diff_x = new_pos_x - old_pos_x
-        diff_y = new_pos_y - old_pos_y
-        # For horizontal movement
-        if diff_x == diff_y
+    # Will check if a move is classically legal solely by movement (DOES NOT CHECK FOR COLLISIONS)
+    def legal_move(self, old_pos_x, old_pos_y, new_pos_x, new_pos_y, isAttacking, piece):
+        board = self.flatten()
+        # piece_type = piece.get_type()
+        pt = piece
+        diff_x = abs(new_pos_x - old_pos_x)
+        diff_y = abs(new_pos_y - old_pos_y)
+        
+        # no move
+        if diff_x == diff_y == 0:
+            return False
 
-        return False
+        check_string = ""
+        if (check_row_col(diff_x, diff_y)): check_string += '1'
+        else: check_string += '0'
+        if (check_diag(diff_x, diff_y)): check_string += '1'
+        else: check_string += '0'
+        if (check_knight(diff_x, diff_y)): check_string += '1'
+        else: check_string += '0'
+        if (check_king(diff_x, diff_y)): check_string += '1'
+        else: check_string += '0'
 
-    def printBoard(self):
-        flattenedBoard = self.flatten()
+        if pt == 0 and check_string == "1000": return True
+        elif pt == 2 and check_string == "0010": return True
+        elif pt == 4 and check_string == "0100": return True
+        elif pt == 6 and check_string == "1100": return True
+        elif pt == 7 and check_string[3] == "1": return True
+        elif pt == 8 and check_pawn(): return True
+        else: return False
+
     def get_board(self, index):
         board = create_board()
         bv = sorted(self.state.comp)[index] # very slow but who cares
         put_board(board, bv)
-        return board;
+        return board
 
     def print_board(self, board):
         print("    1   2   3   4   5   6   7   8")
@@ -229,7 +279,7 @@ class QuantumChess:
             piece = None
             while(piece == None):
                 # board = self.flatten()
-                self.printBoard()
+                self.print_board(board)
                 print("It is " + turn + "'s turn")
                 toParse = input("Use <piece_rank> <piece_file> <new_rank> <new_file> to make your move: ")
                 toParse = toParse.split(" ")
@@ -247,5 +297,11 @@ class QuantumChess:
 
                 # At this point we have a piece object (piece) that needs to be moved to a new location (new_rank, new_file)
 
+
+
 board = QuantumChess()
 board.start_game()
+if (board.legal_move(1, 1, 2, 2, True, 8) == True):
+    print("true")
+else:
+    print("false")
