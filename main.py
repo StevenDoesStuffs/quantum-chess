@@ -35,40 +35,6 @@ class QuantumChess:
             put_board(board, bv)
         return board
 
-    def classical_check(self, board, unitary):
-
-        return
-
-    # Will check if a move is classically legal solely by movement (DOES NOT CHECK FOR COLLISIONS)
-    def legal_move(self, old_pos_x, old_pos_y, new_pos_x, new_pos_y, isAttacking, piece):
-        board = self.flatten()
-        # piece_type = piece.get_type()
-        pt = piece
-        diff_x = abs(new_pos_x - old_pos_x)
-        diff_y = abs(new_pos_y - old_pos_y)
-
-        # no move
-        if diff_x == diff_y == 0:
-            return False
-
-        check_string = ""
-        if (check_row_col(diff_x, diff_y)): check_string += '1'
-        else: check_string += '0'
-        if (check_diag(diff_x, diff_y)): check_string += '1'
-        else: check_string += '0'
-        if (check_knight(diff_x, diff_y)): check_string += '1'
-        else: check_string += '0'
-        if (check_king(diff_x, diff_y)): check_string += '1'
-        else: check_string += '0'
-
-        if pt == 0 and check_string == "1000": return True
-        elif pt == 2 and check_string == "0010": return True
-        elif pt == 4 and check_string == "0100": return True
-        elif pt == 6 and check_string == "1100": return True
-        elif pt == 7 and check_string[3] == "1": return True
-        elif pt == 8 and check_pawn(): return True
-        else: return False
-
     def quantum_move(self, turn):
 
         return
