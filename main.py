@@ -100,5 +100,7 @@ class QuantumChess:
                             cboard.get_pos(piece) == cboard.get_pos(mp) \
                             and piece != mp: self.alive[mp.value] = False
                 self.move = Color.BLACK if self.move == Color.WHITE else Color.WHITE
+                current_board = None
+                current_message = ''
    
 QuantumChess().start_game()
