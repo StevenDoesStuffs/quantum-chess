@@ -1,4 +1,3 @@
-from typing import _Alias
 from classical import print_board, ClassicalBoard
 from quantum import quantum_check, quantum_move
 from simulator import Qubits
